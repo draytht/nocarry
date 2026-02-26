@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  PROFESSOR
+  TEAM_LEADER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String
+  role        Role     @default(STUDENT)
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownedProjects    Project[]       @relation("ProjectOwner")
+  projectMembers   ProjectMember[]
+  assignedTasks    Task[]          @relation("TaskAssignee")
+  createdTasks     Task[]          @relation("TaskCreator")
+  activityLogs     ActivityLog[]
+  peerReviewsGiven PeerReview[]    @relation("ReviewGiver")
+  peerReviewsGot   PeerReview[]    @relation("ReviewReceiver")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  courseCode  String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  owner    User            @relation("ProjectOwner", fields: [ownerId], references: [id])
+  members  ProjectMember[]
+  tasks    Task[]
+  reviews  PeerReview[]
+  logs     ActivityLog[]
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      Role     @default(STUDENT)
+  joinedAt  DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  projectId   String
+  creatorId   String
+  assigneeId  String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  project  Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator  User          @relation("TaskCreator", fields: [creatorId], references: [id])
+  assignee User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  logs     ActivityLog[]
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String
+  taskId    String?
+  action    String   // e.g. "TASK_CREATED", "TASK_COMPLETED", "FILE_UPLOADED"
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task    Task?    @relation(fields: [taskId], references: [id])
+}
+
+model PeerReview {
+  id         String   @id @default(uuid())
+  projectId  String
+  giverId    String
+  receiverId String
+  quality    Int      // 1-5
+  communication Int   // 1-5
+  timeliness Int      // 1-5
+  initiative Int      // 1-5
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  giver    User    @relation("ReviewGiver", fields: [giverId], references: [id])
+  receiver User    @relation("ReviewReceiver", fields: [receiverId], references: [id])
+
+  @@unique([projectId, giverId, receiverId])
+}
