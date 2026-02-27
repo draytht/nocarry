@@ -19,7 +19,7 @@ export async function PATCH(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { preferredName, bio, school, major, githubUrl, linkedinUrl, personalLinks, avatarUrl, name } = body;
+  const { preferredName, bio, school, major, githubUrl, linkedinUrl, personalLinks, avatarUrl, name, status, statusExpiresAt } = body;
 
   try {
     const updated = await prisma.user.update({
@@ -34,6 +34,8 @@ export async function PATCH(request: Request) {
         ...(personalLinks !== undefined && { personalLinks }),
         ...(avatarUrl !== undefined && { avatarUrl }),
         ...(name !== undefined && { name: name || null }),
+        ...(status !== undefined && { status: status || null }),
+        ...(statusExpiresAt !== undefined && { statusExpiresAt: statusExpiresAt ? new Date(statusExpiresAt) : null }),
       },
     });
     return NextResponse.json(updated);

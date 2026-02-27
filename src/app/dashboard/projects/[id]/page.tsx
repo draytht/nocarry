@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -109,6 +109,7 @@ type EditState = {
 
 export default function ProjectPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -119,6 +120,7 @@ export default function ProjectPage() {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserGlobalRole, setCurrentUserGlobalRole] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
 
@@ -134,7 +136,10 @@ export default function ProjectPage() {
       .then((data) => { if (Array.isArray(data)) setActivity(data); });
     fetch("/api/auth/me")
       .then((r) => r.json())
-      .then((u) => { if (u?.id) setCurrentUserId(u.id); });
+      .then((u) => {
+        if (u?.id) setCurrentUserId(u.id);
+        if (u?.role) setCurrentUserGlobalRole(u.role);
+      });
   }, [id]);
 
   useEffect(() => {
@@ -216,6 +221,22 @@ export default function ProjectPage() {
   async function handleFileDelete(fileId: string) {
     const res = await fetch(`/api/projects/${id}/files/${fileId}`, { method: "DELETE" });
     if (res.ok) setFiles((prev) => prev.filter((f) => f.id !== fileId));
+  }
+
+  async function kickMember(memberId: string) {
+    if (!confirm("Remove this member from the project?")) return;
+    const res = await fetch(`/api/projects/${id}/members/${memberId}`, { method: "DELETE" });
+    if (res.ok) {
+      setProject((prev) =>
+        prev ? { ...prev, members: prev.members.filter((m) => m.id !== memberId) } : prev
+      );
+    }
+  }
+
+  async function leaveProject(memberId: string) {
+    if (!confirm("Leave this project? You will lose access.")) return;
+    const res = await fetch(`/api/projects/${id}/members/${memberId}`, { method: "DELETE" });
+    if (res.ok) router.push("/dashboard/projects");
   }
 
   function openEdit(task: Task) {
@@ -305,6 +326,15 @@ export default function ProjectPage() {
           )}
         </div>
         <div className="flex gap-2 shrink-0">
+          {currentUserGlobalRole === "PROFESSOR" && (
+            <Link
+              href={`/dashboard/monitor/${id}`}
+              style={{ border: "1px solid var(--th-accent)", color: "var(--th-accent)" }}
+              className="text-sm px-3 py-1.5 rounded-md hover:opacity-70 transition"
+            >
+              Monitor View
+            </Link>
+          )}
           <Link
             href={`/dashboard/projects/${id}/review`}
             style={{ border: "1px solid var(--th-border)", color: "var(--th-text-2)" }}
@@ -323,28 +353,57 @@ export default function ProjectPage() {
       </div>
 
       {/* Members */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {project.members.map((m) => (
-          <div
-            key={m.id}
-            style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
-            className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1"
-          >
-            <MemberAvatar user={m.user} size={22} />
-            <span style={{ color: "var(--th-text)" }} className="text-xs">{m.user.preferredName || m.user.name}</span>
-            <span style={{ color: "var(--th-text-2)" }} className="text-xs">
-              · {m.role.toLowerCase().replace("_", " ")}
-            </span>
+      {(() => {
+        const myMember = project.members.find((m) => m.user.id === currentUserId);
+        const isPrivileged = myMember?.role === "TEAM_LEADER" || myMember?.role === "PROFESSOR";
+        return (
+          <div className="flex gap-2 mb-6 flex-wrap items-center">
+            {project.members.map((m) => {
+              const isSelf = m.user.id === currentUserId;
+              const canKick = isPrivileged && !isSelf && m.role !== "TEAM_LEADER";
+              return (
+                <div
+                  key={m.id}
+                  style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+                  className="flex items-center gap-2 rounded-full pl-1 pr-2 py-1"
+                >
+                  <MemberAvatar user={m.user} size={22} />
+                  <span style={{ color: "var(--th-text)" }} className="text-xs">{m.user.preferredName || m.user.name}</span>
+                  <span style={{ color: "var(--th-text-2)" }} className="text-xs">· {m.role.toLowerCase().replace("_", " ")}</span>
+                  {canKick && (
+                    <button
+                      onClick={() => kickMember(m.id)}
+                      title="Remove member"
+                      style={{ color: "var(--th-text-2)", cursor: "pointer", lineHeight: 1, fontSize: 14, marginLeft: 2 }}
+                      className="hover:opacity-70 transition"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+            {isPrivileged && (
+              <Link
+                href={`/dashboard/projects/${id}/invite`}
+                style={{ border: "1px solid var(--th-border)", color: "var(--th-text-2)" }}
+                className="text-xs rounded-full px-3 py-1 hover:opacity-70 transition"
+              >
+                + Invite
+              </Link>
+            )}
+            {myMember && myMember.role !== "TEAM_LEADER" && (
+              <button
+                onClick={() => leaveProject(myMember.id)}
+                style={{ color: "#ef4444", fontSize: 11, cursor: "pointer" }}
+                className="hover:opacity-70 transition ml-1"
+              >
+                Leave project
+              </button>
+            )}
           </div>
-        ))}
-        <Link
-          href={`/dashboard/projects/${id}/invite`}
-          style={{ border: "1px solid var(--th-border)", color: "var(--th-text-2)" }}
-          className="text-xs rounded-full px-3 py-1 hover:opacity-70 transition"
-        >
-          + Invite
-        </Link>
-      </div>
+        );
+      })()}
 
       {/* Tabs */}
       <div style={{ borderBottom: "1px solid var(--th-border)" }} className="flex gap-1 mb-6 overflow-x-auto">
@@ -367,7 +426,10 @@ export default function ProjectPage() {
       </div>
 
       {/* Board Tab */}
-      {tab === "board" && (
+      {tab === "board" && (() => {
+        const myMember = project.members.find((m) => m.user.id === currentUserId);
+        const isPrivileged = myMember?.role === "TEAM_LEADER" || myMember?.role === "PROFESSOR";
+        return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {COLUMNS.map((col) => (
             <div
@@ -403,23 +465,35 @@ export default function ProjectPage() {
                         Done {new Date(task.completedAt).toLocaleTimeString()}
                       </p>
                     )}
-                    <div className="flex items-center gap-3 mt-2">
-                      <button
-                        onClick={() => moveTask(task)}
-                        disabled={updating === task.id}
-                        style={{ color: "var(--th-accent)" }}
-                        className="text-xs hover:opacity-70 transition disabled:opacity-30 cursor-pointer"
-                      >
-                        {updating === task.id ? "Updating..." : `→ ${STATUS_LABEL[task.status]}`}
-                      </button>
-                      <button
-                        onClick={() => openEdit(task)}
-                        style={{ color: "var(--th-text-2)" }}
-                        className="text-xs hover:opacity-70 transition cursor-pointer"
-                      >
-                        Edit
-                      </button>
-                    </div>
+                    {(() => {
+                      const isAssignee = task.assigneeId === currentUserId;
+                      const canAction = isAssignee;
+                      const canEdit = isAssignee || isPrivileged;
+                      if (!canAction && !canEdit) return null;
+                      return (
+                        <div className="flex items-center gap-3 mt-2">
+                          {canAction && (
+                            <button
+                              onClick={() => moveTask(task)}
+                              disabled={updating === task.id}
+                              style={{ color: "var(--th-accent)" }}
+                              className="text-xs hover:opacity-70 transition disabled:opacity-30 cursor-pointer"
+                            >
+                              {updating === task.id ? "Updating..." : `→ ${STATUS_LABEL[task.status]}`}
+                            </button>
+                          )}
+                          {canEdit && (
+                            <button
+                              onClick={() => openEdit(task)}
+                              style={{ color: "var(--th-text-2)" }}
+                              className="text-xs hover:opacity-70 transition cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 ))}
                 {col.tasks.length === 0 && (
@@ -431,7 +505,8 @@ export default function ProjectPage() {
             </div>
           ))}
         </div>
-      )}
+        );
+      })()}
 
       {/* Contributions Tab */}
       {tab === "contributions" && (

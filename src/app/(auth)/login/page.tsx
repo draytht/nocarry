@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
+
   const supabase = createClient();
 
   const [email, setEmail] = useState("");
@@ -18,14 +21,24 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const { error: loginError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (loginError) {
       setError(loginError.message);
       setLoading(false);
+      return;
+    }
+
+    // If there's a pending invite, try to accept it
+    if (inviteToken) {
+      const inviteRes = await fetch(`/api/invite/${inviteToken}`, { method: "POST" });
+      if (inviteRes.ok) {
+        const { projectId } = await inviteRes.json();
+        router.push(`/dashboard/projects/${projectId}`);
+        return;
+      }
+      // Accept failed (e.g. wrong email) — redirect to invite page to show error
+      router.push(`/invite/${inviteToken}`);
       return;
     }
 
@@ -49,33 +62,39 @@ export default function LoginPage() {
         className="w-full max-w-sm rounded-xl p-8 space-y-4"
       >
         <h1 style={{ color: "var(--th-text)" }} className="text-lg font-semibold mb-2">
-          Welcome back
+          {inviteToken ? "Log in to accept your invite" : "Welcome back"}
         </h1>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <input
-          className="nc-input"
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="nc-input"
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
+          <input
+            className="nc-input"
+            placeholder="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            className="nc-input"
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button onClick={handleLogin} disabled={loading} className="nc-btn-primary">
-          {loading ? "Logging in..." : "Log In"}
-        </button>
+          <button type="submit" disabled={loading} className="nc-btn-primary">
+            {loading ? "Logging in..." : inviteToken ? "Log In & Accept Invite" : "Log In"}
+          </button>
+        </form>
 
         <p style={{ color: "var(--th-text-2)" }} className="text-sm text-center">
           No account?{" "}
-          <Link href="/signup" style={{ color: "var(--th-accent)" }} className="hover:opacity-70 transition">
+          <Link
+            href={inviteToken ? `/signup?invite=${inviteToken}` : "/signup"}
+            style={{ color: "var(--th-accent)" }}
+            className="hover:opacity-70 transition"
+          >
             Sign up
           </Link>
         </p>

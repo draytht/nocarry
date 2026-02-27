@@ -28,10 +28,12 @@ model User {
   bio            String?
   school         String?
   major          String?
-  githubUrl      String?
-  linkedinUrl    String?
-  personalLinks  Json?
-  createdAt      DateTime @default(now())
+  githubUrl        String?
+  linkedinUrl      String?
+  personalLinks    Json?
+  status           String?
+  statusExpiresAt  DateTime?
+  createdAt        DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   // Relations
@@ -43,6 +45,7 @@ model User {
   peerReviewsGiven PeerReview[]    @relation("ReviewGiver")
   peerReviewsGot   PeerReview[]    @relation("ReviewReceiver")
   uploadedFiles    ProjectFile[]
+  sentInvites      ProjectInvite[]  @relation("InviteSender")
 }
 
 model Project {
@@ -61,6 +64,7 @@ model Project {
   reviews  PeerReview[]
   logs     ActivityLog[]
   files    ProjectFile[]
+  invites  ProjectInvite[]
 }
 
 model ProjectMember {
@@ -121,6 +125,21 @@ model ProjectFile {
 
   project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   uploadedBy User    @relation(fields: [uploadedById], references: [id])
+}
+
+model ProjectInvite {
+  id          String    @id @default(uuid())
+  token       String    @unique @default(uuid())
+  projectId   String
+  email       String
+  role        Role      @default(STUDENT)
+  invitedById String
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invitedBy   User      @relation("InviteSender", fields: [invitedById], references: [id])
 }
 
 model PeerReview {

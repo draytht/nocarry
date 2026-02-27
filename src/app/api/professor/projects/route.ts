@@ -15,7 +15,6 @@ export async function GET(req: Request) {
       courseCode: courseCode || undefined,
       members: {
         some: {
-          user: { role: "PROFESSOR" },
           userId: user.id,
         },
       },

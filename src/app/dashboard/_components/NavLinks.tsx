@@ -37,6 +37,7 @@ export function NavLinks({ role }: { role: string }) {
       {navLink("/dashboard/profile", "Profile")}
       {role === "STUDENT" && navLink("/dashboard/projects", "My Projects")}
       {role === "PROFESSOR" && navLink("/dashboard/courses", "My Courses")}
+      {role === "TEAM_LEADER" && navLink("/dashboard/projects", "My Projects")}
     </>
   );
 }
@@ -66,6 +67,7 @@ export function MobileNavLinks({ role }: { role: string }) {
     <>
       {role === "STUDENT" && mobileLink("/dashboard/projects", "Projects")}
       {role === "PROFESSOR" && mobileLink("/dashboard/courses", "Courses")}
+      {role === "TEAM_LEADER" && mobileLink("/dashboard/projects", "Projects")}
       {mobileLink("/dashboard/profile", "Profile")}
     </>
   );

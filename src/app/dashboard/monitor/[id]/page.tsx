@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 type ContributionScore = {
   userId: string;
@@ -89,13 +90,22 @@ export default function MonitorPage() {
             </p>
           )}
         </div>
-        <button
-          onClick={() => router.back()}
-          style={{ color: "var(--th-text-2)" }}
-          className="text-sm hover:opacity-70 transition cursor-pointer"
-        >
-          ← Back
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/dashboard/projects/${id}`}
+            style={{ background: "var(--th-accent)", color: "var(--th-accent-fg)" }}
+            className="text-sm px-3 py-1.5 rounded-md font-medium hover:opacity-80 transition"
+          >
+            Project Board
+          </Link>
+          <button
+            onClick={() => router.back()}
+            style={{ color: "var(--th-text-2)" }}
+            className="text-sm hover:opacity-70 transition cursor-pointer"
+          >
+            ← Back
+          </button>
+        </div>
       </div>
 
       {/* Stat Cards */}

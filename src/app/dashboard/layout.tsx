@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { MobileNavLinks } from "./_components/NavLinks";
 import { Sidebar } from "./_components/Sidebar";
+import { AvatarStatusCard } from "./_components/AvatarStatusCard";
 
 export default async function DashboardLayout({
   children,
@@ -52,6 +53,14 @@ export default async function DashboardLayout({
 
       {/* Main content */}
       <main className="flex-1 p-4 md:p-8 overflow-auto">{children}</main>
+
+      {/* Floating avatar status card */}
+      <AvatarStatusCard
+        name={dbUser.preferredName || dbUser.name}
+        avatarUrl={dbUser.avatarUrl ?? null}
+        initialStatus={dbUser.status ?? null}
+        initialStatusExpiresAt={dbUser.statusExpiresAt?.toISOString() ?? null}
+      />
     </div>
   );
 }
