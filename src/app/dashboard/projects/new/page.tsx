@@ -39,15 +39,24 @@ export default function NewProjectPage() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Create New Project</h2>
+      <h2 style={{ color: "var(--th-text)" }} className="text-lg font-semibold mb-6">
+        Create New Project
+      </h2>
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      {error && (
+        <p className="text-red-500 text-sm mb-4">{error}</p>
+      )}
 
-      <div className="bg-white border rounded-xl p-6 space-y-4">
+      <div
+        style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+        className="rounded-xl p-6 space-y-4"
+      >
         <div>
-          <label className="text-sm font-medium text-gray-700">Project Name *</label>
+          <label style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest">
+            Project Name *
+          </label>
           <input
-            className="w-full border rounded-lg px-4 py-2 text-sm mt-1"
+            className="nc-input"
             placeholder="e.g. Capstone Project Group 3"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -55,20 +64,26 @@ export default function NewProjectPage() {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Course Code</label>
+          <label style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest">
+            Course Code
+          </label>
           <input
-            className="w-full border rounded-lg px-4 py-2 text-sm mt-1"
+            className="nc-input"
             placeholder="e.g. CS401"
             value={courseCode}
             onChange={(e) => setCourseCode(e.target.value)}
           />
-          <p className="text-xs text-gray-400 mt-1">This links your project to a professor's course.</p>
+          <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-1">
+            Links your project to a professor's course.
+          </p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-700">Description</label>
+          <label style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest">
+            Description
+          </label>
           <textarea
-            className="w-full border rounded-lg px-4 py-2 text-sm mt-1 resize-none"
+            className="nc-input resize-none"
             placeholder="What is this project about?"
             rows={3}
             value={description}
@@ -77,17 +92,10 @@ export default function NewProjectPage() {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button
-            onClick={() => router.back()}
-            className="flex-1 border text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-50"
-          >
+          <button onClick={() => router.back()} className="nc-btn-secondary">
             Cancel
           </button>
-          <button
-            onClick={handleCreate}
-            disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
+          <button onClick={handleCreate} disabled={loading} className="nc-btn-primary">
             {loading ? "Creating..." : "Create Project"}
           </button>
         </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,38 +33,51 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md space-y-5">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
+    <div
+      style={{ background: "var(--th-bg)", color: "var(--th-text)" }}
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+    >
+      <Link href="/" className="nc-brand mb-10">
+        <span className="nc-brand-dot" />
+        <span className="nc-brand-text">
+          No<span style={{ color: "var(--th-accent)" }}>Carry</span>
+        </span>
+      </Link>
+
+      <div
+        style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+        className="w-full max-w-sm rounded-xl p-8 space-y-4"
+      >
+        <h1 style={{ color: "var(--th-text)" }} className="text-lg font-semibold mb-2">
+          Welcome back
+        </h1>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <input
-          className="w-full border rounded-lg px-4 py-2 text-sm"
+          className="nc-input"
           placeholder="Email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          className="w-full border rounded-lg px-4 py-2 text-sm"
+          className="nc-input"
           placeholder="Password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
+        <button onClick={handleLogin} disabled={loading} className="nc-btn-primary">
           {loading ? "Logging in..." : "Log In"}
         </button>
 
-        <p className="text-sm text-center text-gray-500">
+        <p style={{ color: "var(--th-text-2)" }} className="text-sm text-center">
           No account?{" "}
-          <a href="/signup" className="text-blue-600 hover:underline">Sign up</a>
+          <Link href="/signup" style={{ color: "var(--th-accent)" }} className="hover:opacity-70 transition">
+            Sign up
+          </Link>
         </p>
       </div>
     </div>

@@ -24,9 +24,9 @@ export default function CoursesPage() {
       });
   }, []);
 
-  if (loading) return <div className="text-gray-400 text-sm p-8">Loading...</div>;
+  if (loading)
+    return <p style={{ color: "var(--th-text-2)" }} className="text-sm p-8">Loading...</p>;
 
-  // Group by courseCode
   const grouped = projects.reduce((acc, p) => {
     const key = p.courseCode || "Uncategorized";
     if (!acc[key]) acc[key] = [];
@@ -34,26 +34,44 @@ export default function CoursesPage() {
     return acc;
   }, {} as Record<string, Project[]>);
 
+  const totalProjects = projects.length;
+  const totalMembers = projects.reduce((s, p) => s + p.members.length, 0);
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">My Courses</h2>
+      {/* Page header */}
+      <div className="mb-10">
+        <h2 style={{ color: "var(--th-text)" }} className="text-2xl font-bold tracking-tight">
+          My Courses
+        </h2>
+        <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-1">
+          {totalProjects} project{totalProjects !== 1 ? "s" : ""} · {totalMembers} student{totalMembers !== 1 ? "s" : ""} enrolled
+        </p>
       </div>
 
       {Object.keys(grouped).length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <p className="text-lg">No projects yet.</p>
-          <p className="text-sm mt-1">
-            Students will appear here once they add your course code to their project.
+        <div className="text-center py-24">
+          <p style={{ color: "var(--th-text)" }} className="text-base font-semibold mb-1">
+            No projects yet
+          </p>
+          <p style={{ color: "var(--th-text-2)" }} className="text-sm">
+            Students will appear here once they add your course code.
           </p>
         </div>
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-12">
           {Object.entries(grouped).map(([courseCode, courseProjects]) => (
             <div key={courseCode}>
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">
-                📚 {courseCode}
-              </h3>
+              {/* Course heading */}
+              <div className="flex items-baseline gap-3 mb-5">
+                <h3 style={{ color: "var(--th-text)" }} className="text-lg font-bold tracking-tight">
+                  {courseCode}
+                </h3>
+                <span style={{ color: "var(--th-text-2)" }} className="text-xs">
+                  {courseProjects.length} team{courseProjects.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {courseProjects.map((project) => {
                   const done = project.tasks.filter((t) => t.status === "DONE").length;
@@ -64,43 +82,67 @@ export default function CoursesPage() {
                     <Link
                       key={project.id}
                       href={`/dashboard/monitor/${project.id}`}
-                      className="bg-white border rounded-xl p-5 hover:shadow-md transition"
+                      style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+                      className="block p-6 rounded-xl nc-card-hover group"
                     >
-                      <h4 className="font-semibold text-gray-900">{project.name}</h4>
-                      <p className="text-sm text-gray-500 mt-1">
-                        👥 {project.members.length} members · 📋 {total} tasks
-                      </p>
+                      <h4 style={{ color: "var(--th-text)" }} className="text-base font-semibold leading-snug mb-3">
+                        {project.name}
+                      </h4>
 
-                      {/* Progress bar */}
-                      <div className="mt-3">
-                        <div className="flex justify-between text-xs text-gray-400 mb-1">
-                          <span>Progress</span>
-                          <span>{progress}%</span>
+                      {/* Stats row */}
+                      <div className="flex gap-4 mb-4">
+                        <div>
+                          <p style={{ color: "var(--th-text)" }} className="text-xl font-bold leading-none">
+                            {project.members.length}
+                          </p>
+                          <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-0.5">members</p>
                         </div>
-                        <div className="w-full bg-gray-100 rounded-full h-1.5">
-                          <div
-                            className="bg-blue-600 h-1.5 rounded-full"
-                            style={{ width: `${progress}%` }}
-                          />
+                        <div>
+                          <p style={{ color: "var(--th-text)" }} className="text-xl font-bold leading-none">
+                            {total}
+                          </p>
+                          <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-0.5">tasks</p>
+                        </div>
+                        <div>
+                          <p style={{ color: "var(--th-accent)" }} className="text-xl font-bold leading-none">
+                            {progress}%
+                          </p>
+                          <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-0.5">done</p>
                         </div>
                       </div>
 
-                      {/* Members */}
-                      <div className="flex flex-wrap gap-1 mt-3">
+                      {/* Progress bar */}
+                      <div style={{ background: "var(--th-border)" }} className="w-full h-1 rounded-full">
+                        <div
+                          style={{ background: "var(--th-accent)", width: `${progress}%` }}
+                          className="h-1 rounded-full transition-all"
+                        />
+                      </div>
+
+                      {/* Member chips */}
+                      <div className="flex flex-wrap gap-1 mt-4">
                         {project.members.slice(0, 4).map((m) => (
                           <span
                             key={m.user.id}
-                            className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full"
+                            style={{ background: "var(--th-bg)", color: "var(--th-text-2)" }}
+                            className="text-xs px-2 py-0.5 rounded-full"
                           >
                             {m.user.name}
                           </span>
                         ))}
                         {project.members.length > 4 && (
-                          <span className="text-xs text-gray-400">
+                          <span style={{ color: "var(--th-text-2)" }} className="text-xs">
                             +{project.members.length - 4} more
                           </span>
                         )}
                       </div>
+
+                      <p
+                        style={{ color: "var(--th-accent)" }}
+                        className="text-xs font-medium mt-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Monitor →
+                      </p>
                     </Link>
                   );
                 })}

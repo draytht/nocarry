@@ -34,12 +34,14 @@ type Summary = {
   flags: { name: string; reason: string }[];
 };
 
+type Tab = "overview" | "contributions" | "reviews" | "flags" | "report";
+
 export default function MonitorPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"overview" | "contributions" | "reviews" | "flags" | "report">("overview");
+  const [tab, setTab] = useState<Tab>("overview");
   const [report, setReport] = useState<string>("");
   const [reportLoading, setReportLoading] = useState(false);
 
@@ -52,121 +54,152 @@ export default function MonitorPage() {
       });
   }, [id]);
 
-  if (loading) return <div className="text-gray-400 text-sm p-8">Loading...</div>;
-  if (!summary) return <div className="text-red-500 text-sm p-8">Project not found.</div>;
+  if (loading)
+    return <p style={{ color: "var(--th-text-2)" }} className="text-sm p-8">Loading...</p>;
+  if (!summary)
+    return <p className="text-red-500 text-sm p-8">Project not found.</p>;
 
-  const completionRate = summary.taskStats.total === 0
-    ? 0
-    : Math.round((summary.taskStats.done / summary.taskStats.total) * 100);
+  const completionRate =
+    summary.taskStats.total === 0
+      ? 0
+      : Math.round((summary.taskStats.done / summary.taskStats.total) * 100);
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: "overview", label: "Overview" },
+    { key: "contributions", label: "Contributions" },
+    { key: "reviews", label: "Reviews" },
+    {
+      key: "flags",
+      label: summary.flags.length > 0 ? `Flags (${summary.flags.length})` : "Flags",
+    },
+    { key: "report", label: "AI Report" },
+  ];
 
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{summary.project.name}</h2>
+          <h2 style={{ color: "var(--th-text)" }} className="text-2xl font-bold tracking-tight">
+            {summary.project.name}
+          </h2>
           {summary.project.courseCode && (
-            <p className="text-sm text-blue-500">{summary.project.courseCode}</p>
+            <p style={{ color: "var(--th-accent)" }} className="text-xs font-medium uppercase tracking-widest mt-1">
+              {summary.project.courseCode}
+            </p>
           )}
         </div>
         <button
           onClick={() => router.back()}
-          className="text-sm text-blue-600 hover:underline"
+          style={{ color: "var(--th-text-2)" }}
+          className="text-sm hover:opacity-70 transition cursor-pointer"
         >
           ← Back
         </button>
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-4 gap-4 my-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Members", value: summary.members, color: "blue" },
-          { label: "Total Tasks", value: summary.taskStats.total, color: "gray" },
-          { label: "Completed", value: summary.taskStats.done, color: "green" },
-          { label: "Overdue", value: summary.taskStats.overdue, color: "red" },
+          { label: "Members", value: summary.members },
+          { label: "Total Tasks", value: summary.taskStats.total },
+          { label: "Completed", value: summary.taskStats.done },
+          { label: "Overdue", value: summary.taskStats.overdue },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white border rounded-xl p-4 text-center">
-            <p className={`text-3xl font-bold text-${stat.color}-600`}>{stat.value}</p>
-            <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
+          <div
+            key={stat.label}
+            style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+            className="rounded-xl p-4 text-center"
+          >
+            <p style={{ color: "var(--th-accent)" }} className="text-4xl font-black leading-none">
+              {stat.value}
+            </p>
+            <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-2">
+              {stat.label}
+            </p>
           </div>
         ))}
       </div>
 
-      {/* Progress */}
-      <div className="bg-white border rounded-xl p-4 mb-6">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
-          <span>Overall Progress</span>
-          <span className="font-semibold">{completionRate}%</span>
+      {/* Overall Progress */}
+      <div
+        style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+        className="rounded-xl p-4 mb-6"
+      >
+        <div className="flex justify-between text-sm mb-2">
+          <span style={{ color: "var(--th-text-2)" }}>Overall Progress</span>
+          <span style={{ color: "var(--th-accent)" }} className="text-xl font-bold">
+            {completionRate}%
+          </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-2">
+        <div style={{ background: "var(--th-border)" }} className="w-full h-1.5 rounded-full">
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all"
-            style={{ width: `${completionRate}%` }}
+            style={{ background: "var(--th-accent)", width: `${completionRate}%` }}
+            className="h-1.5 rounded-full transition-all"
           />
         </div>
       </div>
 
       {/* Flags alert */}
       {summary.flags.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-          <p className="text-sm font-semibold text-red-700 mb-2">
-            ⚠️ {summary.flags.length} flag{summary.flags.length > 1 ? "s" : ""} detected
+        <div className="bg-red-950/40 border border-red-800/50 rounded-xl p-4 mb-6">
+          <p className="text-sm font-semibold text-red-400 mb-2">
+            {summary.flags.length} flag{summary.flags.length > 1 ? "s" : ""} detected
           </p>
           {summary.flags.map((f, i) => (
-            <p key={i} className="text-sm text-red-600">
-              • <strong>{f.name}</strong>: {f.reason}
+            <p key={i} className="text-sm text-red-400">
+              · <strong>{f.name}</strong>: {f.reason}
             </p>
           ))}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b">
-        {(["overview", "contributions", "reviews", "flags"] as const).map((t) => (
+      <div style={{ borderBottom: "1px solid var(--th-border)" }} className="flex gap-1 mb-6 overflow-x-auto">
+        {tabs.map((t) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 capitalize transition ${
-              tab === t
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            style={{
+              borderBottom: tab === t.key
+                ? `2px solid var(--th-accent)`
+                : "2px solid transparent",
+              color: tab === t.key ? "var(--th-accent)" : "var(--th-text-2)",
+              marginBottom: "-1px",
+            }}
+            className="px-4 py-2 text-sm font-medium transition cursor-pointer capitalize whitespace-nowrap shrink-0"
           >
-            {t === "flags" && summary.flags.length > 0
-              ? `⚠️ Flags (${summary.flags.length})`
-              : t.charAt(0).toUpperCase() + t.slice(1)}
+            {t.label}
           </button>
         ))}
-
-        {/* ADD THIS */}
-        <button
-          onClick={() => setTab("report")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-            tab === "report"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          🤖 AI Report
-        </button>
       </div>
 
-      {/* Overview Tab */}
+      {/* Overview */}
       {tab === "overview" && (
         <div className="space-y-3">
           {summary.contributions.map((c, i) => (
-            <div key={c.userId} className="bg-white border rounded-xl p-4">
+            <div
+              key={c.userId}
+              style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+              className="rounded-xl p-4"
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-gray-400">#{i + 1}</span>
-                  <span className="font-semibold text-gray-900">{c.name}</span>
+                  <span style={{ color: "var(--th-text-2)" }} className="text-xs font-bold">
+                    #{i + 1}
+                  </span>
+                  <span style={{ color: "var(--th-text)" }} className="font-semibold text-base">
+                    {c.name}
+                  </span>
                 </div>
-                <span className="text-xl font-bold text-blue-600">{c.percentage}%</span>
+                <span style={{ color: "var(--th-accent)" }} className="text-3xl font-black">
+                  {c.percentage}%
+                </span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div style={{ background: "var(--th-border)" }} className="w-full h-1 rounded-full">
                 <div
-                  className="bg-blue-600 h-1.5 rounded-full"
-                  style={{ width: `${c.percentage}%` }}
+                  style={{ background: "var(--th-accent)", width: `${c.percentage}%` }}
+                  className="h-1 rounded-full"
                 />
               </div>
             </div>
@@ -174,37 +207,45 @@ export default function MonitorPage() {
         </div>
       )}
 
-      {/* Contributions Tab */}
+      {/* Contributions */}
       {tab === "contributions" && (
         <div className="space-y-4">
           {summary.contributions.map((c, i) => (
-            <div key={c.userId} className="bg-white border rounded-xl p-5">
+            <div
+              key={c.userId}
+              style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+              className="rounded-xl p-5"
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-400">#{i + 1}</span>
-                  <span className="font-semibold text-gray-900">{c.name}</span>
+                  <span style={{ color: "var(--th-text-2)" }} className="text-sm font-bold">#{i + 1}</span>
+                  <span style={{ color: "var(--th-text)" }} className="font-semibold text-base">{c.name}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-blue-600">{c.percentage}%</span>
-                  <p className="text-xs text-gray-400">{c.points} pts</p>
+                  <span style={{ color: "var(--th-accent)" }} className="text-3xl font-black">{c.percentage}%</span>
+                  <p style={{ color: "var(--th-text-2)" }} className="text-xs">{c.points} pts</p>
                 </div>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
+              <div style={{ background: "var(--th-border)" }} className="w-full h-1.5 rounded-full mb-4">
                 <div
-                  className="bg-blue-600 h-2 rounded-full"
-                  style={{ width: `${c.percentage}%` }}
+                  style={{ background: "var(--th-accent)", width: `${c.percentage}%` }}
+                  className="h-1.5 rounded-full"
                 />
               </div>
-              <div className="grid grid-cols-4 gap-2 text-center">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center">
                 {[
                   { label: "Completed", value: c.breakdown.tasksCompleted },
                   { label: "In Progress", value: c.breakdown.tasksInProgress },
                   { label: "Created", value: c.breakdown.tasksCreated },
                   { label: "Other", value: c.breakdown.otherActions },
                 ].map((b) => (
-                  <div key={b.label} className="bg-gray-50 rounded-lg p-2">
-                    <p className="text-lg font-bold text-gray-800">{b.value}</p>
-                    <p className="text-xs text-gray-400">{b.label}</p>
+                  <div
+                    key={b.label}
+                    style={{ background: "var(--th-bg)", border: "1px solid var(--th-border)" }}
+                    className="rounded-lg p-2"
+                  >
+                    <p style={{ color: "var(--th-text)" }} className="text-xl font-bold">{b.value}</p>
+                    <p style={{ color: "var(--th-text-2)" }} className="text-xs">{b.label}</p>
                   </div>
                 ))}
               </div>
@@ -213,35 +254,50 @@ export default function MonitorPage() {
         </div>
       )}
 
-      {/* Reviews Tab */}
+      {/* Reviews */}
       {tab === "reviews" && (
         <div className="space-y-4">
           {Object.keys(summary.reviewSummary).length === 0 ? (
-            <div className="text-center py-20 text-gray-400">
-              <p>No peer reviews submitted yet.</p>
+            <div className="text-center py-24">
+              <p style={{ color: "var(--th-text-2)" }} className="text-sm">No peer reviews yet.</p>
             </div>
           ) : (
             Object.entries(summary.reviewSummary).map(([userId, r]) => (
-              <div key={userId} className="bg-white border rounded-xl p-5">
+              <div
+                key={userId}
+                style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+                className="rounded-xl p-5"
+              >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="font-semibold text-gray-900">{r.name}</span>
-                  <span className="text-xs text-gray-400">{r.reviewCount} review{r.reviewCount > 1 ? "s" : ""}</span>
+                  <span style={{ color: "var(--th-text)" }} className="font-semibold text-base">
+                    {r.name}
+                  </span>
+                  <span style={{ color: "var(--th-text-2)" }} className="text-xs">
+                    {r.reviewCount} review{r.reviewCount > 1 ? "s" : ""}
+                  </span>
                 </div>
-                <div className="grid grid-cols-4 gap-3 text-center">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                   {[
                     { label: "Quality", value: r.avgQuality },
                     { label: "Communication", value: r.avgCommunication },
                     { label: "Timeliness", value: r.avgTimeliness },
                     { label: "Initiative", value: r.avgInitiative },
                   ].map((s) => (
-                    <div key={s.label} className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-xl font-bold text-yellow-500">{s.value}</p>
-                      <p className="text-xs text-gray-400">{s.label}</p>
-                      <div className="flex justify-center mt-1">
+                    <div
+                      key={s.label}
+                      style={{ background: "var(--th-bg)", border: "1px solid var(--th-border)" }}
+                      className="rounded-lg p-3"
+                    >
+                      <p style={{ color: "var(--th-accent)" }} className="text-2xl font-bold">
+                        {s.value}
+                      </p>
+                      <p style={{ color: "var(--th-text-2)" }} className="text-xs">{s.label}</p>
+                      <div className="flex justify-center mt-1 gap-0.5">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <span
                             key={star}
-                            className={`text-xs ${star <= s.value ? "text-yellow-400" : "text-gray-200"}`}
+                            style={{ color: star <= s.value ? "var(--th-accent)" : "var(--th-border)" }}
+                            className="text-xs"
                           >
                             ★
                           </span>
@@ -256,27 +312,51 @@ export default function MonitorPage() {
         </div>
       )}
 
+      {/* Flags */}
+      {tab === "flags" && (
+        <div className="space-y-3">
+          {summary.flags.length === 0 ? (
+            <div className="text-center py-24">
+              <p style={{ color: "var(--th-text-2)" }} className="text-sm">No flags detected.</p>
+              <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-1">
+                All team members appear to be contributing fairly.
+              </p>
+            </div>
+          ) : (
+            summary.flags.map((f, i) => (
+              <div
+                key={i}
+                className="bg-red-950/40 border border-red-800/50 rounded-xl p-4"
+              >
+                <p className="font-semibold text-red-400 text-sm">{f.name}</p>
+                <p className="text-sm text-red-400/80 mt-1">{f.reason}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* AI Report */}
       {tab === "report" && (
         <div>
           {!report && (
-            <div className="text-center py-16">
-              <p className="text-gray-500 mb-4">
+            <div className="text-center py-20">
+              <p style={{ color: "var(--th-text-2)" }} className="text-sm mb-6">
                 Generate an AI-powered contribution report for this project.
               </p>
               <button
                 onClick={async () => {
                   setReportLoading(true);
-                  const res = await fetch(`/api/projects/${id}/report`, {
-                    method: "POST",
-                  });
+                  const res = await fetch(`/api/projects/${id}/report`, { method: "POST" });
                   const data = await res.json();
                   setReport(data.report);
                   setReportLoading(false);
                 }}
                 disabled={reportLoading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                style={{ background: "var(--th-accent)", color: "var(--th-accent-fg)" }}
+                className="text-sm px-6 py-2 rounded-md font-medium hover:opacity-80 transition disabled:opacity-40 cursor-pointer"
               >
-                {reportLoading ? "Generating..." : "🤖 Generate Report"}
+                {reportLoading ? "Generating..." : "Generate Report"}
               </button>
             </div>
           )}
@@ -284,7 +364,9 @@ export default function MonitorPage() {
           {report && (
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900">AI Contribution Report</h3>
+                <h3 style={{ color: "var(--th-text)" }} className="font-semibold text-sm">
+                  AI Contribution Report
+                </h3>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
@@ -295,45 +377,32 @@ export default function MonitorPage() {
                       a.download = `${summary.project.name}-report.txt`;
                       a.click();
                     }}
-                    className="text-sm border px-3 py-1.5 rounded-lg hover:bg-gray-50"
+                    style={{ border: "1px solid var(--th-border)", color: "var(--th-text-2)" }}
+                    className="text-sm px-3 py-1.5 rounded-md hover:opacity-70 transition cursor-pointer"
                   >
-                    ⬇ Download
+                    Download
                   </button>
                   <button
-                    onClick={() => {
-                      setReport("");
-                    }}
-                    className="text-sm border px-3 py-1.5 rounded-lg hover:bg-gray-50"
+                    onClick={() => setReport("")}
+                    style={{ border: "1px solid var(--th-border)", color: "var(--th-text-2)" }}
+                    className="text-sm px-3 py-1.5 rounded-md hover:opacity-70 transition cursor-pointer"
                   >
-                    🔄 Regenerate
+                    Regenerate
                   </button>
                 </div>
               </div>
-              <div className="bg-white border rounded-xl p-6">
-                <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans leading-relaxed">
+              <div
+                style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+                className="rounded-xl p-6"
+              >
+                <pre
+                  style={{ color: "var(--th-text)" }}
+                  className="whitespace-pre-wrap text-sm font-sans leading-relaxed"
+                >
                   {report}
                 </pre>
               </div>
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Flags Tab */}
-      {tab === "flags" && (
-        <div className="space-y-3">
-          {summary.flags.length === 0 ? (
-            <div className="text-center py-20 text-gray-400">
-              <p>✅ No flags detected.</p>
-              <p className="text-sm mt-1">All team members appear to be contributing fairly.</p>
-            </div>
-          ) : (
-            summary.flags.map((f, i) => (
-              <div key={i} className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <p className="font-semibold text-red-800">{f.name}</p>
-                <p className="text-sm text-red-600 mt-1">{f.reason}</p>
-              </div>
-            ))
           )}
         </div>
       )}

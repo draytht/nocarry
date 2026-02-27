@@ -43,38 +43,38 @@ export default function InvitePage() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Invite Team Member</h2>
+      <h2 style={{ color: "var(--th-text)" }} className="text-lg font-semibold mb-6">
+        Invite Team Member
+      </h2>
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      {success && <p className="text-green-600 text-sm mb-4">{success}</p>}
+      {success && <p className="text-green-500 text-sm mb-4">{success}</p>}
 
-      <div className="bg-white border rounded-xl p-6 space-y-4">
+      <div
+        style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+        className="rounded-xl p-6 space-y-4"
+      >
         <div>
-          <label className="text-sm font-medium text-gray-700">Member Email</label>
+          <label style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest">
+            Member Email
+          </label>
           <input
-            className="w-full border rounded-lg px-4 py-2 text-sm mt-1"
+            className="nc-input"
             placeholder="teammate@university.edu"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <p className="text-xs text-gray-400 mt-1">
-            They must already have a ProjectFair account.
+          <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-1">
+            They must already have a NoCarry account.
           </p>
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button
-            onClick={() => router.back()}
-            className="flex-1 border text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-50"
-          >
+          <button onClick={() => router.back()} className="nc-btn-secondary">
             Cancel
           </button>
-          <button
-            onClick={handleInvite}
-            disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
+          <button onClick={handleInvite} disabled={loading} className="nc-btn-primary">
             {loading ? "Inviting..." : "Invite Member"}
           </button>
         </div>
@@ -83,7 +83,8 @@ export default function InvitePage() {
       <div className="mt-4 text-center">
         <button
           onClick={() => router.push(`/dashboard/projects/${id}`)}
-          className="text-sm text-blue-600 hover:underline"
+          style={{ color: "var(--th-accent)" }}
+          className="text-sm hover:opacity-70 transition cursor-pointer"
         >
           ← Back to project
         </button>

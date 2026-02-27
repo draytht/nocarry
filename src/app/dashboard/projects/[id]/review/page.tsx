@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 type Member = { user: { id: string; name: string } };
-type Review = { receiverId: string; quality: number; communication: number; timeliness: number; initiative: number; comment: string };
+type Review = {
+  receiverId: string;
+  quality: number;
+  communication: number;
+  timeliness: number;
+  initiative: number;
+  comment: string;
+};
 
 function StarRating({
   label,
@@ -17,15 +24,16 @@ function StarRating({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-700 w-36">{label}</span>
+      <span style={{ color: "var(--th-text-2)" }} className="text-sm w-36">
+        {label}
+      </span>
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             onClick={() => onChange(star)}
-            className={`text-xl transition ${
-              star <= value ? "text-yellow-400" : "text-gray-300"
-            }`}
+            style={{ color: star <= value ? "var(--th-accent)" : "var(--th-border)" }}
+            className="text-xl transition cursor-pointer"
           >
             ★
           </button>
@@ -55,23 +63,19 @@ export default function ReviewPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Get current user
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((data) => setCurrentUserId(data.id));
 
-    // Get members
     fetch(`/api/projects/${id}/members`)
       .then((r) => r.json())
       .then(setMembers);
 
-    // Get existing reviews
     fetch(`/api/projects/${id}/reviews`)
       .then((r) => r.json())
       .then(setExistingReviews);
   }, [id]);
 
-  // When selecting a member, prefill if review exists
   useEffect(() => {
     if (!selectedMemberId) return;
     const existing = existingReviews.find((r) => r.receiverId === selectedMemberId);
@@ -121,10 +125,9 @@ export default function ReviewPage() {
       return;
     }
 
-    setSuccess("Review submitted successfully!");
+    setSuccess("Review submitted.");
     setLoading(false);
 
-    // Refresh existing reviews
     fetch(`/api/projects/${id}/reviews`)
       .then((r) => r.json())
       .then(setExistingReviews);
@@ -136,55 +139,76 @@ export default function ReviewPage() {
   return (
     <div className="max-w-lg mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Peer Review</h2>
+        <h2 style={{ color: "var(--th-text)" }} className="text-lg font-semibold">
+          Peer Review
+        </h2>
         <button
           onClick={() => router.push(`/dashboard/projects/${id}`)}
-          className="text-sm text-blue-600 hover:underline"
+          style={{ color: "var(--th-accent)" }}
+          className="text-sm hover:opacity-70 transition cursor-pointer"
         >
-          ← Back to project
+          ← Back
         </button>
       </div>
 
-      {/* Review progress */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-        <p className="text-sm text-blue-700 font-medium">
-          You have reviewed {reviewedIds.length} of {reviewableMembers.length} teammates
+      {/* Progress */}
+      <div
+        style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+        className="rounded-xl p-4 mb-6"
+      >
+        <p style={{ color: "var(--th-text-2)" }} className="text-xs mb-2">
+          {reviewedIds.length} of {reviewableMembers.length} teammates reviewed
         </p>
-        <div className="w-full bg-blue-100 rounded-full h-1.5 mt-2">
+        <div
+          style={{ background: "var(--th-border)" }}
+          className="w-full h-1 rounded-full"
+        >
           <div
-            className="bg-blue-600 h-1.5 rounded-full transition-all"
             style={{
+              background: "var(--th-accent)",
               width: reviewableMembers.length === 0
                 ? "0%"
                 : `${(reviewedIds.length / reviewableMembers.length) * 100}%`,
             }}
+            className="h-1 rounded-full transition-all"
           />
         </div>
       </div>
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      {success && <p className="text-green-600 text-sm mb-4">{success}</p>}
+      {success && <p className="text-green-500 text-sm mb-4">{success}</p>}
 
-      <div className="bg-white border rounded-xl p-6 space-y-5">
+      <div
+        style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+        className="rounded-xl p-6 space-y-5"
+      >
         {/* Member selector */}
         <div>
-          <label className="text-sm font-medium text-gray-700">Select Teammate</label>
-          <div className="flex flex-wrap gap-2 mt-2">
+          <label style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest">
+            Select Teammate
+          </label>
+          <div className="flex flex-wrap gap-2 mt-3">
             {reviewableMembers.map((m) => {
               const reviewed = reviewedIds.includes(m.user.id);
+              const isSelected = selectedMemberId === m.user.id;
               return (
                 <button
                   key={m.user.id}
                   onClick={() => setSelectedMemberId(m.user.id)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition ${
-                    selectedMemberId === m.user.id
-                      ? "bg-blue-600 text-white border-blue-600"
+                  style={{
+                    background: isSelected
+                      ? "var(--th-accent)"
+                      : "transparent",
+                    color: isSelected
+                      ? "var(--th-accent-fg)"
                       : reviewed
-                      ? "bg-green-50 text-green-700 border-green-300"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
-                  }`}
+                      ? "var(--th-accent)"
+                      : "var(--th-text-2)",
+                    border: `1px solid ${isSelected ? "var(--th-accent)" : "var(--th-border)"}`,
+                  }}
+                  className="px-3 py-1.5 rounded-full text-sm transition cursor-pointer hover:opacity-80"
                 >
-                  {m.user.name} {reviewed && "✓"}
+                  {m.user.name}{reviewed && " ✓"}
                 </button>
               );
             })}
@@ -193,7 +217,7 @@ export default function ReviewPage() {
 
         {selectedMemberId && (
           <>
-            <div className="border-t pt-4 space-y-3">
+            <div style={{ borderTop: "1px solid var(--th-border)" }} className="pt-4 space-y-3">
               <StarRating label="Work Quality" value={quality} onChange={setQuality} />
               <StarRating label="Communication" value={communication} onChange={setCommunication} />
               <StarRating label="Timeliness" value={timeliness} onChange={setTimeliness} />
@@ -201,9 +225,11 @@ export default function ReviewPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Comment (optional)</label>
+              <label style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest">
+                Comment (optional)
+              </label>
               <textarea
-                className="w-full border rounded-lg px-4 py-2 text-sm mt-1 resize-none"
+                className="nc-input resize-none"
                 placeholder="Any additional feedback..."
                 rows={3}
                 value={comment}
@@ -211,11 +237,7 @@ export default function ReviewPage() {
               />
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-            >
+            <button onClick={handleSubmit} disabled={loading} className="nc-btn-primary">
               {loading
                 ? "Submitting..."
                 : reviewedIds.includes(selectedMemberId)

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { FloatingThemeToggle } from "@/components/FloatingThemeToggle";
+import { CursorGlow } from "@/components/CursorGlow";
+import { ClickSound } from "@/components/ClickSound";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,7 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "NoCarry — Fair grading for group projects",
   description: "Track contributions, eliminate freeloaders, and grade group projects fairly.",
 };
@@ -23,11 +27,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Prevent flash of wrong theme on load */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('nc-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();`,
+          }}
+        />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider>
+          {children}
+          <FloatingThemeToggle />
+          <CursorGlow />
+          <ClickSound />
+        </ThemeProvider>
       </body>
     </html>
   );

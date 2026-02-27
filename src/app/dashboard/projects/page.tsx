@@ -17,20 +17,32 @@ export default async function ProjectsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">My Projects</h2>
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h2 style={{ color: "var(--th-text)" }} className="text-2xl font-bold tracking-tight">
+            My Projects
+          </h2>
+          <p style={{ color: "var(--th-text-2)" }} className="text-xs mt-1">
+            {projects.length} active project{projects.length !== 1 ? "s" : ""}
+          </p>
+        </div>
         <Link
           href="/dashboard/projects/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+          style={{ background: "var(--th-accent)", color: "var(--th-accent-fg)" }}
+          className="text-sm px-4 py-2 rounded-md font-medium hover:opacity-80 transition active:scale-95"
         >
-          + Create Project
+          + New Project
         </Link>
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <p className="text-lg">No projects yet.</p>
-          <p className="text-sm mt-1">Create one or ask your team leader to invite you.</p>
+        <div className="text-center py-24">
+          <p style={{ color: "var(--th-text)" }} className="text-base font-semibold mb-1">
+            No projects yet
+          </p>
+          <p style={{ color: "var(--th-text-2)" }} className="text-sm">
+            Create one or ask your team leader to invite you.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -38,15 +50,28 @@ export default async function ProjectsPage() {
             <Link
               key={project.id}
               href={`/dashboard/projects/${project.id}`}
-              className="bg-white border rounded-xl p-5 hover:shadow-md transition"
+              style={{ background: "var(--th-card)", border: "1px solid var(--th-border)" }}
+              className="block p-6 rounded-xl nc-card-hover group"
             >
-              <h3 className="font-semibold text-gray-900">{project.name}</h3>
               {project.courseCode && (
-                <p className="text-xs text-blue-500 mt-1">{project.courseCode}</p>
+                <p style={{ color: "var(--th-accent)" }} className="text-xs font-medium uppercase tracking-widest mb-2">
+                  {project.courseCode}
+                </p>
               )}
+              <h3 style={{ color: "var(--th-text)" }} className="text-base font-semibold leading-snug mb-1">
+                {project.name}
+              </h3>
               {project.description && (
-                <p className="text-sm text-gray-500 mt-2 line-clamp-2">{project.description}</p>
+                <p style={{ color: "var(--th-text-2)" }} className="text-sm mt-2 line-clamp-2 leading-relaxed">
+                  {project.description}
+                </p>
               )}
+              <p
+                style={{ color: "var(--th-accent)" }}
+                className="text-xs font-medium mt-4 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                Open →
+              </p>
             </Link>
           ))}
         </div>

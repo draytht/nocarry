@@ -1,225 +1,281 @@
 import Link from "next/link";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { CTAButton } from "@/components/CTAButton";
+
+const problems = [
+  {
+    title: "One person does everything",
+    desc: "The same student carries the whole team while others coast.",
+  },
+  {
+    title: "Grades feel random",
+    desc: "Professors can't see who actually did the work. Everyone gets the same grade.",
+  },
+  {
+    title: "Peer reviews are biased",
+    desc: "Friends rate friends highly. Real contributors go unrecognized.",
+  },
+];
+
+const features = [
+  {
+    title: "Contribution Scoring",
+    desc: "Every task created, completed, and assigned is tracked. Scores are calculated automatically.",
+  },
+  {
+    title: "Smart Peer Reviews",
+    desc: "Students rate teammates on quality, communication, timeliness, and initiative. Anomalies are flagged.",
+  },
+  {
+    title: "Freeloader Detection",
+    desc: "Members with low activity, last-minute contributions, or mismatched peer ratings are flagged.",
+  },
+  {
+    title: "AI Report Generator",
+    desc: "Professors get an instant AI-written report with contribution analysis and grading suggestions.",
+  },
+  {
+    title: "Kanban Task Board",
+    desc: "Teams manage work in a clean board with To Do, In Progress, and Done columns.",
+  },
+  {
+    title: "Professor Dashboard",
+    desc: "Real-time visibility into every team's progress, contributions, and peer review scores.",
+  },
+];
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-white overflow-x-hidden">
-
+    <main
+      style={{ background: "var(--th-bg)", color: "var(--th-text)" }}
+      className="min-h-screen"
+    >
       {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/10">
-        <span className="text-xl font-bold tracking-tight text-white">
-          Project<span className="text-blue-400">Fair</span>
-        </span>
+      <nav
+        style={{ borderBottom: "1px solid var(--th-border)" }}
+        className="flex items-center justify-between px-8 py-4"
+      >
+        {/* Brand mark */}
+        <Link href="/" className="nc-brand">
+          <span className="nc-brand-dot" />
+          <span className="nc-brand-text">
+            No<span style={{ color: "var(--th-accent)" }}>Carry</span>
+          </span>
+        </Link>
+
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm text-gray-400 hover:text-white transition">
+          <Link
+            href="/login"
+            style={{ color: "var(--th-text-2)" }}
+            className="text-sm transition-opacity hover:opacity-70"
+          >
             Log in
           </Link>
-          <Link
+          <CTAButton
             href="/signup"
-            className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded-lg transition font-medium"
+            style={{
+              background: "var(--th-accent)",
+              color: "var(--th-accent-fg)",
+            }}
+            className="text-sm px-4 py-2 rounded-md font-medium transition-[opacity,transform] hover:opacity-80 active:scale-95"
           >
             Get Started
-          </Link>
+          </CTAButton>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="relative flex flex-col items-center justify-center text-center px-6 pt-32 pb-24">
-        {/* Background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <span className="inline-block bg-blue-600/20 text-blue-400 text-xs font-semibold px-3 py-1 rounded-full border border-blue-500/30 mb-6 tracking-widest uppercase">
-            Built for students. Trusted by professors.
-          </span>
-
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-none mb-6">
-            Group projects,{" "}
-            <span className="text-blue-400">finally fair.</span>
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-32 pb-28">
+        <ScrollReveal className="w-full">
+          <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[1.1] mb-6 max-w-2xl mx-auto">
+            Group projects,
+            <br />
+            finally fair.
           </h1>
+        </ScrollReveal>
 
-          <p className="text-lg text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed">
-            Track real contributions, eliminate freeloaders, and give professors the data they need to grade fairly.
+        <ScrollReveal delay={120} className="w-full">
+          <p
+            style={{ color: "var(--th-text-2)" }}
+            className="text-base max-w-md mx-auto mb-10 leading-relaxed"
+          >
+            Track real contributions, eliminate freeloaders, and give professors
+            the data they need to grade fairly.
           </p>
+        </ScrollReveal>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
+        <ScrollReveal delay={240} className="w-full flex justify-center">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <CTAButton
               href="/signup"
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-3 rounded-xl transition text-sm"
+              style={{
+                background: "var(--th-accent)",
+                color: "var(--th-accent-fg)",
+              }}
+              className="text-sm font-medium px-7 py-3 rounded-md transition-[opacity,transform] hover:opacity-80 active:scale-95"
             >
               Start for free →
-            </Link>
-            <Link
+            </CTAButton>
+            <CTAButton
               href="/login"
-              className="border border-white/20 hover:border-white/40 text-gray-300 font-medium px-8 py-3 rounded-xl transition text-sm"
+              style={{
+                border: "1px solid var(--th-border)",
+                color: "var(--th-text-2)",
+              }}
+              className="text-sm font-medium px-7 py-3 rounded-md transition-[opacity,transform] hover:opacity-70 active:scale-95"
             >
               Log in
-            </Link>
+            </CTAButton>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
-      {/* Problem Section */}
+      {/* Divider */}
+      <div style={{ borderTop: "1px solid var(--th-border)" }} className="max-w-5xl mx-auto" />
+
+      {/* Problem */}
       <section className="px-6 py-20 max-w-5xl mx-auto">
-        <p className="text-center text-xs uppercase tracking-widest text-gray-500 mb-12">
-          The group project problem
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            {
-              emoji: "😤",
-              title: "One person does everything",
-              desc: "The same student carries the whole team while others coast.",
-            },
-            {
-              emoji: "🎲",
-              title: "Grades feel random",
-              desc: "Professors can't see who actually did the work. Everyone gets the same grade.",
-            },
-            {
-              emoji: "🤐",
-              title: "Peer reviews are biased",
-              desc: "Friends rate friends highly. Real contributors go unrecognized.",
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="bg-white/5 border border-white/10 rounded-2xl p-6"
-            >
-              <span className="text-3xl mb-4 block">{item.emoji}</span>
-              <h3 className="font-bold text-white mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
-            </div>
+        <ScrollReveal>
+          <p style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest mb-12">
+            The problem
+          </p>
+        </ScrollReveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {problems.map((item, i) => (
+            <ScrollReveal key={item.title} delay={i * 80}>
+              <div>
+                <div
+                  style={{ background: "var(--th-accent)", width: "1.5rem", height: "2px" }}
+                  className="mb-4"
+                />
+                <h3 className="font-bold text-base mb-2">{item.title}</h3>
+                <p style={{ color: "var(--th-text-2)" }} className="text-sm leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </section>
 
-      {/* Features */}
-      <section className="px-6 py-20 bg-white/[0.02] border-y border-white/10">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-center text-xs uppercase tracking-widest text-gray-500 mb-4">
-            How ProjectFair fixes it
-          </p>
-          <h2 className="text-3xl md:text-4xl font-black text-center mb-16">
-            Everything you need for <span className="text-blue-400">fair grading</span>
-          </h2>
+      {/* Divider */}
+      <div style={{ borderTop: "1px solid var(--th-border)" }} className="max-w-5xl mx-auto" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              {
-                icon: "📊",
-                title: "Contribution Scoring",
-                desc: "Every task created, completed, and assigned is tracked. Contribution scores are calculated automatically — no manual logging.",
-              },
-              {
-                icon: "⭐",
-                title: "Smart Peer Reviews",
-                desc: "Students rate teammates on quality, communication, timeliness, and initiative. Anomalies are flagged automatically.",
-              },
-              {
-                icon: "🚩",
-                title: "Freeloader Detection",
-                desc: "ProjectFair flags members with low activity, last-minute contributions, or mismatched peer ratings.",
-              },
-              {
-                icon: "🤖",
-                title: "AI Report Generator",
-                desc: "Professors get an instant AI-written report with contribution analysis and suggested grading adjustments.",
-              },
-              {
-                icon: "📋",
-                title: "Kanban Task Board",
-                desc: "Teams manage work in a clean board with To Do, In Progress, and Done columns. Task history is preserved.",
-              },
-              {
-                icon: "🎓",
-                title: "Professor Dashboard",
-                desc: "Real-time visibility into every team's progress, contributions, and peer review scores — all in one place.",
-              },
-            ].map((f) => (
-              <div
-                key={f.title}
-                className="flex gap-4 bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-blue-500/40 transition"
-              >
-                <span className="text-2xl mt-0.5">{f.icon}</span>
-                <div>
-                  <h3 className="font-bold text-white mb-1">{f.title}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
-                </div>
+      {/* Features */}
+      <section className="px-6 py-20 max-w-5xl mx-auto">
+        <ScrollReveal>
+          <p style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest mb-12">
+            How NoCarry fixes it
+          </p>
+        </ScrollReveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+          {features.map((f, i) => (
+            <ScrollReveal key={f.title} delay={i * 60}>
+              <div>
+                <h3 className="font-bold text-base mb-1">{f.title}</h3>
+                <p style={{ color: "var(--th-text-2)" }} className="text-sm leading-relaxed">
+                  {f.desc}
+                </p>
               </div>
-            ))}
-          </div>
+            </ScrollReveal>
+          ))}
         </div>
       </section>
+
+      {/* Divider */}
+      <div style={{ borderTop: "1px solid var(--th-border)" }} className="max-w-5xl mx-auto" />
 
       {/* For Students / Professors */}
       <section className="px-6 py-20 max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Students */}
-          <div className="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-8">
-            <span className="text-3xl mb-4 block">🎒</span>
-            <h3 className="text-xl font-black mb-4">For Students</h3>
-            <ul className="space-y-3">
-              {[
-                "Protect yourself from carrying the team",
-                "Prove your contributions with real data",
-                "Rate teammates fairly and anonymously",
-                "Track your tasks and deadlines",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
-                  <span className="text-blue-400 mt-0.5">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+          <ScrollReveal>
+            <div>
+              <p style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest mb-8">
+                For Students
+              </p>
+              <ul className="space-y-4">
+                {[
+                  "Protect yourself from carrying the team",
+                  "Prove your contributions with real data",
+                  "Rate teammates fairly and anonymously",
+                  "Track your tasks and deadlines",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm">
+                    <span style={{ color: "var(--th-accent)" }} className="font-bold shrink-0">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ScrollReveal>
 
-          {/* Professors */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-            <span className="text-3xl mb-4 block">🎓</span>
-            <h3 className="text-xl font-black mb-4">For Professors</h3>
-            <ul className="space-y-3">
-              {[
-                "See real engagement, not just final output",
-                "Get AI-generated grading reports instantly",
-                "Detect freeloaders with contribution flags",
-                "Monitor all teams from one dashboard",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
-                  <span className="text-green-400 mt-0.5">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ScrollReveal delay={100}>
+            <div>
+              <p style={{ color: "var(--th-text-2)" }} className="text-xs uppercase tracking-widest mb-8">
+                For Professors
+              </p>
+              <ul className="space-y-4">
+                {[
+                  "See real engagement, not just final output",
+                  "Get AI-generated grading reports instantly",
+                  "Detect freeloaders with contribution flags",
+                  "Monitor all teams from one dashboard",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm">
+                    <span style={{ color: "var(--th-accent)" }} className="font-bold shrink-0">—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
+      {/* Divider */}
+      <div style={{ borderTop: "1px solid var(--th-border)" }} className="max-w-5xl mx-auto" />
+
       {/* CTA */}
-      <section className="px-6 py-24 text-center relative">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[500px] h-[300px] bg-blue-600/15 rounded-full blur-[100px]" />
-        </div>
-        <div className="relative z-10 max-w-2xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-4">
+      <section className="px-6 py-28 text-center">
+        <ScrollReveal>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
             Stop letting freeloaders win.
           </h2>
-          <p className="text-gray-400 mb-8">
-            Join ProjectFair and make group work fair for everyone.
+        </ScrollReveal>
+
+        <ScrollReveal delay={100}>
+          <p style={{ color: "var(--th-text-2)" }} className="text-base mb-10">
+            Join NoCarry and make group work fair for everyone.
           </p>
-          <Link
+        </ScrollReveal>
+
+        <ScrollReveal delay={200}>
+          <CTAButton
             href="/signup"
-            className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-10 py-4 rounded-xl transition text-base inline-block"
+            style={{
+              background: "var(--th-accent)",
+              color: "var(--th-accent-fg)",
+            }}
+            className="text-sm font-medium px-8 py-3 rounded-md transition-[opacity,transform] hover:opacity-80 active:scale-95 inline-block"
           >
             Create your free account →
-          </Link>
-        </div>
+          </CTAButton>
+        </ScrollReveal>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 px-8 py-6 flex items-center justify-between text-xs text-gray-500">
-        <span>
-          Project<span className="text-blue-400">Fair</span> © {new Date().getFullYear()}
-        </span>
+      <footer
+        style={{ borderTop: "1px solid var(--th-border)", color: "var(--th-text-2)" }}
+        className="px-8 py-5 flex items-center justify-between text-xs"
+      >
+        <Link href="/" className="nc-brand">
+          <span className="nc-brand-dot" style={{ width: "5px", height: "5px" }} />
+          <span style={{ fontWeight: 600, fontSize: "0.75rem", color: "var(--th-text-2)" }}>
+            NoCarry
+          </span>
+        </Link>
         <span>Built for students. Trusted by professors.</span>
       </footer>
     </main>

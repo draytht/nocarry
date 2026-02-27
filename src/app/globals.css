@@ -124,3 +124,242 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ── Global motion & feel ───────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+@keyframes nc-ripple {
+  to { transform: scale(1); opacity: 0; }
+}
+
+@keyframes nc-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Subtle page entrance on every route */
+main {
+  animation: nc-page-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Remove tap highlight on mobile */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Brand mark */
+.nc-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  text-decoration: none;
+}
+.nc-brand-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--th-accent);
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  flex-shrink: 0;
+}
+.nc-brand:hover .nc-brand-dot {
+  transform: scale(1.4) rotate(45deg);
+}
+.nc-brand-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--th-text);
+}
+
+/* Card hover lift */
+.nc-card-hover {
+  transition: transform 0.2s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.2s ease,
+              opacity 0.15s ease;
+}
+.nc-card-hover:hover {
+  transform: translateY(-3px);
+}
+
+/* ── Dashboard utility classes ─────────────────────────────────── */
+.nc-nav-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  color: var(--th-text-2);
+  transition: color 0.15s, background-color 0.15s;
+  text-decoration: none;
+}
+.nc-nav-link:hover {
+  color: var(--th-text);
+  background-color: var(--th-border);
+}
+
+.nc-input {
+  background: var(--th-bg);
+  border: 1px solid var(--th-border);
+  color: var(--th-text);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+  display: block;
+  margin-top: 0.25rem;
+}
+.nc-input::placeholder { color: var(--th-text-2); }
+.nc-input:focus { border-color: var(--th-accent); }
+
+.nc-select {
+  background: var(--th-bg);
+  border: 1px solid var(--th-border);
+  color: var(--th-text);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  display: block;
+  margin-top: 0.25rem;
+}
+.nc-select:focus { border-color: var(--th-accent); }
+
+.nc-btn-primary {
+  background: var(--th-accent);
+  color: var(--th-accent-fg);
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.12s cubic-bezier(0.16,1,0.3,1), box-shadow 0.12s ease;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.28), 0 2px 10px rgba(0,0,0,0.14);
+}
+.nc-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 rgba(0,0,0,0.28), 0 8px 22px rgba(0,0,0,0.18);
+}
+.nc-btn-primary:active:not(:disabled) {
+  opacity: 1;
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1);
+}
+.nc-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.nc-btn-secondary {
+  background: transparent;
+  color: var(--th-text-2);
+  border: 1px solid var(--th-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.12s cubic-bezier(0.16,1,0.3,1), box-shadow 0.12s ease;
+  width: 100%;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+}
+.nc-btn-secondary:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.18), 0 6px 18px rgba(0,0,0,0.1);
+}
+.nc-btn-secondary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.12);
+  opacity: 1;
+}
+
+/* 3D lift for CTA links (landing page buttons) */
+.nc-btn-3d {
+  box-shadow: 0 4px 0 rgba(0,0,0,0.28), 0 2px 12px rgba(0,0,0,0.14) !important;
+  transition: transform 0.12s cubic-bezier(0.16,1,0.3,1), box-shadow 0.12s ease, opacity 0.15s ease !important;
+}
+.nc-btn-3d:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 7px 0 rgba(0,0,0,0.28), 0 10px 26px rgba(0,0,0,0.18) !important;
+}
+.nc-btn-3d:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2) !important;
+}
+
+/* ── Theme variables ───────────────────────────────────────────── */
+[data-theme="dark"] {
+  --th-bg:         #0d0d0d;
+  --th-card:       #111111;
+  --th-text:       #eeeeee;
+  --th-text-2:     #777777;
+  --th-border:     #252525;
+  --th-accent:     #e0e0e0;
+  --th-accent-fg:  #0d0d0d;
+}
+
+[data-theme="light"] {
+  --th-bg:         #ffffff;
+  --th-card:       #f7f7f7;
+  --th-text:       #111111;
+  --th-text-2:     #666666;
+  --th-border:     #e0e0e0;
+  --th-accent:     #111111;
+  --th-accent-fg:  #ffffff;
+}
+
+[data-theme="gruvbox"] {
+  --th-bg:         #282828;
+  --th-card:       #32302f;
+  --th-text:       #ebdbb2;
+  --th-text-2:     #a89984;
+  --th-border:     #504945;
+  --th-accent:     #d79921;
+  --th-accent-fg:  #282828;
+}
+
+[data-theme="nord"] {
+  --th-bg:         #2e3440;
+  --th-card:       #3b4252;
+  --th-text:       #eceff4;
+  --th-text-2:     #9199aa;
+  --th-border:     #434c5e;
+  --th-accent:     #88c0d0;
+  --th-accent-fg:  #2e3440;
+}
+
+[data-theme="tokyo-night"] {
+  --th-bg:         #1a1b26;
+  --th-card:       #24283b;
+  --th-text:       #c0caf5;
+  --th-text-2:     #565f89;
+  --th-border:     #292e42;
+  --th-accent:     #7aa2f7;
+  --th-accent-fg:  #1a1b26;
+}
+
+[data-theme="dracula"] {
+  --th-bg:         #282a36;
+  --th-card:       #21222c;
+  --th-text:       #f8f8f2;
+  --th-text-2:     #6272a4;
+  --th-border:     #44475a;
+  --th-accent:     #bd93f9;
+  --th-accent-fg:  #282a36;
+}
+
+[data-theme="catppuccin"] {
+  --th-bg:         #1e1e2e;
+  --th-card:       #181825;
+  --th-text:       #cdd6f4;
+  --th-text-2:     #6c7086;
+  --th-border:     #313244;
+  --th-accent:     #cba6f7;
+  --th-accent-fg:  #1e1e2e;
+}
