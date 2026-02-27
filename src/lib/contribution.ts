@@ -34,7 +34,7 @@ export async function getContributionScores(projectId: string) {
   // Initialize all members with 0
   for (const m of members) {
     scoreMap[m.userId] = {
-      name: m.user.name,
+      name: m.user.preferredName || m.user.name,
       points: 0,
       breakdown: {
         tasksCompleted: 0,

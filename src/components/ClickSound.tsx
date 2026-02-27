@@ -35,7 +35,7 @@ function synthesizeClick(ctx: AudioContext, heavy: boolean) {
   bp.Q.value = 1.6;
 
   const noiseGain = ctx.createGain();
-  noiseGain.gain.setValueAtTime(heavy ? 0.28 : 0.18, now);
+  noiseGain.gain.setValueAtTime(heavy ? 0.65 : 0.42, now);
   noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
   src.connect(hp);
@@ -52,7 +52,7 @@ function synthesizeClick(ctx: AudioContext, heavy: boolean) {
   osc.frequency.exponentialRampToValueAtTime((heavy ? 95 : 145) * variance, now + dur);
 
   const oscGain = ctx.createGain();
-  oscGain.gain.setValueAtTime(heavy ? 0.13 : 0.07, now);
+  oscGain.gain.setValueAtTime(heavy ? 0.30 : 0.16, now);
   oscGain.gain.exponentialRampToValueAtTime(0.0001, now + dur * 2.2);
 
   osc.connect(oscGain);

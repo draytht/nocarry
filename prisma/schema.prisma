@@ -19,13 +19,20 @@ enum TaskStatus {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  name        String
-  role        Role     @default(STUDENT)
-  avatarUrl   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(uuid())
+  email          String   @unique
+  name           String
+  role           Role     @default(STUDENT)
+  avatarUrl      String?
+  preferredName  String?
+  bio            String?
+  school         String?
+  major          String?
+  githubUrl      String?
+  linkedinUrl    String?
+  personalLinks  Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relations
   ownedProjects    Project[]       @relation("ProjectOwner")
@@ -35,6 +42,7 @@ model User {
   activityLogs     ActivityLog[]
   peerReviewsGiven PeerReview[]    @relation("ReviewGiver")
   peerReviewsGot   PeerReview[]    @relation("ReviewReceiver")
+  uploadedFiles    ProjectFile[]
 }
 
 model Project {
@@ -52,6 +60,7 @@ model Project {
   tasks    Task[]
   reviews  PeerReview[]
   logs     ActivityLog[]
+  files    ProjectFile[]
 }
 
 model ProjectMember {
@@ -98,6 +107,20 @@ model ActivityLog {
   user    User     @relation(fields: [userId], references: [id])
   project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   task    Task?    @relation(fields: [taskId], references: [id])
+}
+
+model ProjectFile {
+  id           String   @id @default(uuid())
+  projectId    String
+  uploadedById String
+  name         String
+  url          String
+  size         Int?
+  mimeType     String?
+  createdAt    DateTime @default(now())
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy User    @relation(fields: [uploadedById], references: [id])
 }
 
 model PeerReview {

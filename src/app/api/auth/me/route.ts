@@ -7,6 +7,9 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { id: true, email: true, name: true, role: true, avatarUrl: true, preferredName: true },
+  });
   return NextResponse.json(dbUser);
 }
