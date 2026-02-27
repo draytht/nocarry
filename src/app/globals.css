@@ -129,6 +129,18 @@
 /* ── Global motion & feel ───────────────────────────────────────── */
 html { scroll-behavior: smooth; }
 
+@keyframes nc-settings-in {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+.nc-settings-modal {
+  animation: nc-settings-in 0.18s cubic-bezier(0.16,1,0.3,1) both;
+}
+.nc-gear-btn {
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), color 0.15s;
+}
+.nc-gear-btn:hover { transform: rotate(90deg); }
+
 @keyframes nc-ripple {
   to { transform: scale(1); opacity: 0; }
 }
@@ -183,11 +195,33 @@ main {
   transform: translateY(-3px);
 }
 
+/* ── Nav icon animations ─────────────────────────────────────────── */
+@keyframes nc-icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  40%       { transform: translateY(-4px); }
+  70%       { transform: translateY(-2px); }
+}
+@keyframes nc-icon-pop {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.28); }
+}
+@keyframes nc-icon-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-14deg); }
+  75%       { transform: rotate(14deg); }
+}
+@keyframes nc-icon-spin-once {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 /* ── Dashboard utility classes ─────────────────────────────────── */
 .nc-nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   border-radius: 0.5rem;
   color: var(--th-text-2);
   transition: color 0.15s, background-color 0.15s;
@@ -197,6 +231,17 @@ main {
   color: var(--th-text);
   background-color: var(--th-border);
 }
+.nc-nav-link .nc-nav-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+.nc-nav-link:hover .nc-nav-icon-bounce  { animation: nc-icon-bounce   0.45s cubic-bezier(0.34,1.56,0.64,1); }
+.nc-nav-link:hover .nc-nav-icon-pop     { animation: nc-icon-pop      0.35s cubic-bezier(0.34,1.56,0.64,1); }
+.nc-nav-link:hover .nc-nav-icon-wiggle  { animation: nc-icon-wiggle   0.4s  ease; }
+.nc-nav-link:hover .nc-nav-icon-spin    { animation: nc-icon-spin-once 0.5s  ease; }
 
 .nc-input {
   background: var(--th-bg);

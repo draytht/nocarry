@@ -1,13 +1,27 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function CursorGlow() {
   const ref = useRef<HTMLDivElement>(null);
+  const [enabled, setEnabled] = useState(true);
+
+  useEffect(() => {
+    // Load initial pref
+    setEnabled(localStorage.getItem("nc-cursor-glow") !== "false");
+
+    // Listen for settings changes
+    function onSettings(e: Event) {
+      const detail = (e as CustomEvent).detail;
+      if ("cursorGlow" in detail) setEnabled(detail.cursorGlow);
+    }
+    window.addEventListener("nc-settings", onSettings);
+    return () => window.removeEventListener("nc-settings", onSettings);
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !enabled) return;
 
     const SIZE = 520;
     const HALF = SIZE / 2;
@@ -18,7 +32,9 @@ export function CursorGlow() {
 
     document.addEventListener("mousemove", onMove, { passive: true });
     return () => document.removeEventListener("mousemove", onMove);
-  }, []);
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
     <div

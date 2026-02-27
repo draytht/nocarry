@@ -67,6 +67,7 @@ export function ClickSound() {
 
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
+      if (localStorage.getItem("nc-sound") === "false") return;
       // Throttle: ignore if another sound played within 40ms
       const now = Date.now();
       if (now - lastPlayedRef.current < 40) return;
@@ -96,6 +97,7 @@ export function ClickSound() {
 
     // Touch support for mobile
     function onTouchStart(e: TouchEvent) {
+      if (localStorage.getItem("nc-sound") === "false") return;
       const now = Date.now();
       if (now - lastPlayedRef.current < 40) return;
 
