@@ -28,8 +28,7 @@ In group projects, evaluating individual contributions can often be a challenge.
 ## Architecture
 NoCarry operates on a microservices architecture, allowing for scalability and flexibility. The frontend communicates with the backend services via REST APIs. Our backend is designed to handle various aspects of user management, project tracking, and reporting, ensuring a smooth user experience. The integration of AI models enhances our reporting capabilities, making them smarter and more insightful.
 
-### Diagram
-![Architecture Diagram](link_to_architecture_diagram_image)
+
 
 ---
 
