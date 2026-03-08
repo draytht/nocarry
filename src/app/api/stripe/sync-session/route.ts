@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       stripePriceId: subscription.items.data[0].price.id,
       plan: "PRO",
       status: subscription.status,
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
     },
     update: {
       stripeCustomerId: session.customer as string,
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       stripePriceId: subscription.items.data[0].price.id,
       plan: "PRO",
       status: subscription.status,
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
     },
   });
 
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     limits,
     usage: { courses: courseCount, projects: projectCount },
     status: subscription.status,
-    currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+    currentPeriodEnd: new Date((subscription as any).current_period_end * 1000).toISOString(),
     stripePriceId: subscription.items.data[0].price.id,
   });
 }
