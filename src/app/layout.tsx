@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { FloatingThemeToggle } from "@/components/FloatingThemeToggle";
 import { CursorGlow } from "@/components/CursorGlow";
 import { ClickSound } from "@/components/ClickSound";
+import { Toaster } from "sonner";
 
 // DM Sans — humanist grotesque, excellent clarity, pairs well with Instrument Serif
 // Injected under the same --font-sora variable so every existing reference just works
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body className={`${dmSans.variable} ${instrumentSerif.variable} antialiased`}>
         <ThemeProvider>
           {children}
+          <Toaster theme="dark" position="bottom-center" richColors />
           <FloatingThemeToggle />
           <CursorGlow />
           <ClickSound />
