@@ -130,7 +130,7 @@ function DraggableCard({
   return (
     <div
       ref={elRef}
-      className={`cs-draggable${className ? ` ${className}` : ""}`}
+      className={className}
       style={{
         ...style,
         animation: floatAnim,
@@ -138,6 +138,8 @@ function DraggableCard({
           ? { position: "fixed", left: fixedPos.x, top: fixedPos.y, right: "auto", bottom: "auto", transform: "none" }
           : {}),
         cursor:       grabbed ? "grabbing" : "grab",
+        touchAction:  "none",
+        userSelect:   "none",
         pointerEvents:"auto",
         zIndex:       grabbed ? 999 : (style?.zIndex ?? 2),
         boxShadow:    grabbed
