@@ -283,43 +283,112 @@ function MoveProjectModal({
 
 // ── Mini project card (inside course) ────────────────────────────────────────
 
-function MiniProjectCard({ project, isProfessor }: { project: ProjectStub; isProfessor?: boolean }) {
+function MiniProjectCard({ project, isProfessor, onUnlink }: { project: ProjectStub; isProfessor?: boolean; onUnlink?: (projectId: string) => void }) {
   const done = project.tasks.filter((t) => t.status === "DONE").length;
   const total = project.tasks.length;
   const progress = total === 0 ? 0 : Math.round((done / total) * 100);
   const href = isProfessor ? `/dashboard/monitor/${project.id}` : `/dashboard/projects/${project.id}`;
+  const [hovered, setHovered] = useState(false);
+  const [unlinking, setUnlinking] = useState(false);
+
+  async function handleUnlink(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!confirm(`Unlink "${project.name}" from this course?`)) return;
+    setUnlinking(true);
+    const res = await fetch(`/api/projects/${project.id}/course`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ courseId: null }),
+    });
+    if (res.ok) { onUnlink?.(project.id); }
+    else setUnlinking(false);
+  }
 
   return (
-    <Link
-      href={href}
-      style={{
-        background: "var(--th-bg)",
-        border: "1px solid var(--th-border)",
-        borderRadius: 12,
-        padding: "14px 14px 12px",
-        textDecoration: "none",
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 110,
-        transition: "border-color 0.15s, transform 0.15s",
-      }}
-      className="nc-card-hover group"
+    <div
+      style={{ position: "relative" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <p style={{ color: "var(--th-text)", fontSize: "0.8125rem", fontWeight: 600, lineHeight: 1.3, marginBottom: 8 }}>
-        {project.name}
-      </p>
-      <div style={{ flex: 1 }} />
-      <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-        <span style={{ color: "var(--th-text-2)", fontSize: "0.6875rem" }}>{project.members.length} members</span>
-        <span style={{ color: "var(--th-accent)", fontSize: "0.6875rem", fontWeight: 600 }}>{progress}% done</span>
-      </div>
-      <div style={{ background: "var(--th-border)", width: "100%", height: 2, borderRadius: 999 }}>
-        <div style={{ background: "var(--th-accent)", width: `${progress}%`, height: 2, borderRadius: 999, transition: "width 0.4s" }} />
-      </div>
-      <p style={{ color: "var(--th-accent)", fontSize: "0.6875rem", fontWeight: 600, marginTop: 8, opacity: 0 }} className="group-hover:opacity-100 transition-opacity">
-        Open →
-      </p>
-    </Link>
+      <Link
+        href={href}
+        style={{
+          background: "var(--th-bg)",
+          border: "1px solid var(--th-border)",
+          borderRadius: 12,
+          padding: "14px 14px 12px",
+          textDecoration: "none",
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 110,
+          transition: "border-color 0.15s, transform 0.15s",
+        }}
+        className="nc-card-hover group"
+      >
+        <p style={{ color: "var(--th-text)", fontSize: "0.8125rem", fontWeight: 600, lineHeight: 1.3, marginBottom: 8 }}>
+          {project.name}
+        </p>
+        <div style={{ flex: 1 }} />
+        <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+          <span style={{ color: "var(--th-text-2)", fontSize: "0.6875rem" }}>{project.members.length} members</span>
+          <span style={{ color: "var(--th-accent)", fontSize: "0.6875rem", fontWeight: 600 }}>{progress}% done</span>
+        </div>
+        <div style={{ background: "var(--th-border)", width: "100%", height: 2, borderRadius: 999 }}>
+          <div style={{ background: "var(--th-accent)", width: `${progress}%`, height: 2, borderRadius: 999, transition: "width 0.4s" }} />
+        </div>
+        <p style={{ color: "var(--th-accent)", fontSize: "0.6875rem", fontWeight: 600, marginTop: 8, opacity: 0 }} className="group-hover:opacity-100 transition-opacity">
+          Open →
+        </p>
+      </Link>
+
+      {/* Unlink button — shows on hover, only for non-professor view */}
+      {!isProfessor && onUnlink && (
+        <button
+          onClick={handleUnlink}
+          disabled={unlinking}
+          title="Unlink from course"
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            width: 24,
+            height: 24,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "var(--th-bg)",
+            border: "1px solid var(--th-border)",
+            borderRadius: 6,
+            cursor: unlinking ? "not-allowed" : "pointer",
+            color: "var(--th-text-2)",
+            opacity: hovered ? 1 : 0,
+            transition: "opacity 0.15s, color 0.14s, border-color 0.14s, background 0.14s",
+            zIndex: 2,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#f59e0b";
+            e.currentTarget.style.borderColor = "rgba(245,158,11,0.4)";
+            e.currentTarget.style.background = "rgba(245,158,11,0.08)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--th-text-2)";
+            e.currentTarget.style.borderColor = "var(--th-border)";
+            e.currentTarget.style.background = "var(--th-bg)";
+          }}
+        >
+          {unlinking ? (
+            <span style={{ fontSize: 9, fontWeight: 700 }}>…</span>
+          ) : (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              <line x1="2" y1="2" x2="22" y2="22" />
+            </svg>
+          )}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -392,12 +461,14 @@ function CourseAccordion({
   isProfessor,
   onLinkProject,
   onDelete,
+  onUnlinkProject,
 }: {
   course: Course;
   unlinkedProjects: ProjectStub[];
   isProfessor: boolean;
   onLinkProject: (courseId: string) => void;
   onDelete: (id: string) => void;
+  onUnlinkProject: (projectId: string) => void;
 }) {
   const [open, setOpen] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -486,7 +557,7 @@ function CourseAccordion({
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" style={{ marginTop: 16, alignItems: "stretch" }}>
                 {course.projects.map((p) => (
-                  <MiniProjectCard key={p.id} project={p} isProfessor={isProfessor} />
+                  <MiniProjectCard key={p.id} project={p} isProfessor={isProfessor} onUnlink={onUnlinkProject} />
                 ))}
               </div>
               {unlinkedProjects.length > 0 && (
@@ -680,6 +751,7 @@ export default function CoursesPage() {
               isProfessor={isProfessor}
               onLinkProject={(id) => setLinkingCourseId(id)}
               onDelete={(id) => setCourses((prev) => prev.filter((c) => c.id !== id))}
+              onUnlinkProject={(projectId) => handleProjectMoved(projectId, null)}
             />
           ))}
         </div>
