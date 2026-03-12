@@ -119,8 +119,8 @@ function ProjectCard({
         </div>
       </Link>
 
-      {/* Unlink button — shows on card hover, leader only, when linked to a course */}
-      {isLeader && project.courseCode && (
+      {/* Unlink button — shows on card hover for any member, when linked to a course */}
+      {project.courseCode && (
         <button
           onClick={handleUnlink}
           disabled={unlinking}

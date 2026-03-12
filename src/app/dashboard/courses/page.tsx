@@ -342,8 +342,8 @@ function MiniProjectCard({ project, isProfessor, onUnlink }: { project: ProjectS
         </p>
       </Link>
 
-      {/* Unlink button — shows on hover, only for non-professor view */}
-      {!isProfessor && onUnlink && (
+      {/* Unlink button — shows on hover for both students and professors */}
+      {onUnlink && (
         <button
           onClick={handleUnlink}
           disabled={unlinking}
@@ -626,6 +626,7 @@ type PlanData = { plan: "FREE" | "PRO"; limits: { courses: number }; usage: { co
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
   const [allUserProjects, setAllUserProjects] = useState<ProjectStub[]>([]);
   const [loading, setLoading] = useState(true);
   const [isProfessor, setIsProfessor] = useState(false);
@@ -636,12 +637,14 @@ export default function CoursesPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/courses").then((r) => r.ok ? r.json() : []),
+      fetch("/api/courses").then((r) => r.ok ? r.json() : { owned: [], enrolled: [] }),
       fetch("/api/projects").then((r) => r.ok ? r.json() : []),
       fetch("/api/auth/me").then((r) => r.ok ? r.json() : null),
       fetch("/api/stripe/plan").then((r) => r.ok ? r.json() : null),
     ]).then(([c, p, me, plan]) => {
-      setCourses(Array.isArray(c) ? c : []);
+      const data = c as { owned?: Course[]; enrolled?: Course[] };
+      setCourses(Array.isArray(data?.owned) ? data.owned : []);
+      setEnrolledCourses(Array.isArray(data?.enrolled) ? data.enrolled : []);
       setAllUserProjects(Array.isArray(p) ? p : []);
       if (me?.role === "PROFESSOR") setIsProfessor(true);
       if (plan) setPlanData(plan);
@@ -658,7 +661,6 @@ export default function CoursesPage() {
     const project = allUserProjects.find((p) => p.id === projectId);
     if (!project) return;
 
-    // Remove from other courses (if it was in one)
     setCourses((prev) => prev.map((c) => ({
       ...c,
       projects: c.id === targetCourseId
@@ -671,7 +673,7 @@ export default function CoursesPage() {
 
   function handleProjectMoved(projectId: string, targetCourseId: string | null) {
     const project = allUserProjects.find((p) => p.id === projectId)
-      || courses.flatMap((c) => c.projects).find((p) => p.id === projectId);
+      || [...courses, ...enrolledCourses].flatMap((c) => c.projects).find((p) => p.id === projectId);
     if (!project) return;
 
     setCourses((prev) => prev.map((c) => ({
@@ -680,6 +682,11 @@ export default function CoursesPage() {
         ? [...c.projects.filter((p) => p.id !== projectId), project]
         : c.projects.filter((p) => p.id !== projectId),
     })));
+    // Remove from enrolled courses too (can't re-enroll from this page)
+    setEnrolledCourses((prev) => prev.map((c) => ({
+      ...c,
+      projects: c.projects.filter((p) => p.id !== projectId),
+    })).filter((c) => c.projects.length > 0));
     setMovingProject(null);
   }
 
@@ -723,7 +730,7 @@ export default function CoursesPage() {
       </div>
 
       {/* Empty state */}
-      {courses.length === 0 && (
+      {courses.length === 0 && enrolledCourses.length === 0 && (
         <div style={{ textAlign: "center", padding: "96px 24px" }}>
           <p style={{ color: "var(--th-text)", fontWeight: 600, fontSize: "0.9375rem", marginBottom: 6 }}>No courses yet</p>
           <p style={{ color: "var(--th-text-2)", fontSize: "0.8125rem", marginBottom: 24 }}>
@@ -736,13 +743,12 @@ export default function CoursesPage() {
           >
             + Create your first course
           </button>
-
         </div>
       )}
 
-      {/* Course accordions */}
+      {/* Owned course accordions */}
       {courses.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: unlinkedProjects.length > 0 ? 40 : 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: (unlinkedProjects.length > 0 || enrolledCourses.length > 0) ? 40 : 0 }}>
           {courses.map((course) => (
             <CourseAccordion
               key={course.id}
@@ -754,6 +760,72 @@ export default function CoursesPage() {
               onUnlinkProject={(projectId) => handleProjectMoved(projectId, null)}
             />
           ))}
+        </div>
+      )}
+
+      {/* Enrolled courses — courses where user has a project but doesn't own the course */}
+      {enrolledCourses.length > 0 && (
+        <div style={{ marginBottom: unlinkedProjects.length > 0 ? 40 : 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ flex: 1, height: 1, background: "var(--th-border)" }} />
+            <p style={{ color: "var(--th-text-2)", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", flexShrink: 0 }}>
+              Enrolled In
+            </p>
+            <div style={{ flex: 1, height: 1, background: "var(--th-border)" }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {enrolledCourses.map((course) => (
+              <div
+                key={course.id}
+                style={{
+                  background: "var(--th-card)",
+                  border: "1px solid var(--th-border)",
+                  borderRadius: 16,
+                  overflow: "hidden",
+                }}
+              >
+                {/* Enrolled course header (read-only, no controls) */}
+                <div style={{ padding: "18px 20px", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <span style={{ color: "var(--th-text)", fontSize: "0.9375rem", fontWeight: 700 }}>{course.name}</span>
+                      <span style={{
+                        color: "var(--th-accent)", fontSize: "0.6875rem", fontWeight: 700,
+                        background: "color-mix(in srgb, var(--th-accent) 10%, transparent)",
+                        border: "1px solid color-mix(in srgb, var(--th-accent) 22%, transparent)",
+                        padding: "2px 8px", borderRadius: 999, letterSpacing: "0.06em",
+                      }}>{course.code}</span>
+                      <span style={{
+                        color: "var(--th-text-2)", fontSize: "0.625rem", fontWeight: 600,
+                        background: "var(--th-bg)", border: "1px solid var(--th-border)",
+                        padding: "2px 7px", borderRadius: 999, letterSpacing: "0.06em", textTransform: "uppercase",
+                      }}>Enrolled</span>
+                    </div>
+                    {course.description && (
+                      <p style={{ color: "var(--th-text-2)", fontSize: "0.75rem", marginTop: 2, lineHeight: 1.4 }}>{course.description}</p>
+                    )}
+                  </div>
+                  <span style={{ color: "var(--th-text-2)", fontSize: "0.75rem", flexShrink: 0 }}>
+                    {course.projects.length} project{course.projects.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                {/* Projects grid with unlink buttons */}
+                <div style={{ padding: "0 20px 20px", borderTop: "1px solid var(--th-border)" }}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" style={{ marginTop: 16 }}>
+                    {course.projects.map((p) => (
+                      <MiniProjectCard
+                        key={p.id}
+                        project={p}
+                        isProfessor={false}
+                        onUnlink={(projectId) => handleProjectMoved(projectId, null)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
